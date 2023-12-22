@@ -20,7 +20,7 @@ func main() {
 
 	logger := initialization.NewLogger(config.GetConfigLevel())
 
-	computeLayer, err := compute.NewCompute(compute.NewParser(), compute.NewAnalyzer(), logger)
+	comp, err := compute.NewCompute(compute.NewParser(), compute.NewAnalyzer(), logger)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -31,7 +31,7 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	database, err := database.NewDatabase(computeLayer, store, logger)
+	database, err := database.NewDatabase(comp, store, logger)
 	if err != nil {
 		log.Fatalln(err)
 	}
