@@ -72,6 +72,23 @@ func TestGet(t *testing.T) {
 	})
 }
 
+func TestSet(t *testing.T) {
+	t.Parallel()
+
+	ctrl := gomock.NewController(t)
+	engine := mock_engine.NewMockEngine(ctrl)
+	storage := &Storage{
+		engine: engine,
+	}
+
+	key := "key"
+	engine.EXPECT().Set(gomock.Any(), key, gomock.Any())
+
+	err := storage.Set(context.TODO(), key, "value")
+
+	require.NoError(t, err)
+}
+
 func TestDel(t *testing.T) {
 	t.Parallel()
 
