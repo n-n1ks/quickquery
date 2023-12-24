@@ -1,7 +1,8 @@
 package compute
 
 const (
-	GetCommandID = iota
+	UnknownCommandID = iota
+	GetCommandID
 	SetCommandID
 	DelCommandID
 	// Must be the last one.
@@ -52,7 +53,7 @@ func toCommandID(token string) (int, error) {
 	case "DEL":
 		return DelCommandID, nil
 	default:
-		return 0, errInvalidCommand
+		return UnknownCommandID, errInvalidCommand
 	}
 }
 

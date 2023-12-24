@@ -2,6 +2,7 @@ package database
 
 import (
 	"context"
+	"errors"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -51,6 +52,24 @@ func TestNewDatabase(t *testing.T) {
 
 func TestHandleQuery(t *testing.T) {
 	t.Parallel()
+
+	t.Run("when compute layer returns error", func(t *testing.T) {
+		t.Parallel()
+
+		logger := initialization.NewLogger("fatal")
+		ctrl := gomock.NewController(t)
+
+		comp := database_mock.NewMockComputerLayer(ctrl)
+		comp.EXPECT().HandleQuery(gomock.Any(), gomock.Any()).Return(
+			compute.NewQuery(compute.SetCommandID, []string{}), errors.New("unknown error"),
+		)
+
+		store := database_mock.NewMockStorageLayer(ctrl)
+		db, _ := NewDatabase(comp, store, logger)
+		result := db.HandleQuery(context.TODO(), "SET a 10")
+
+		require.Equal(t, "ERROR: unknown error", result)
+	})
 
 	t.Run("when command is SET a 10", func(t *testing.T) {
 		t.Parallel()

@@ -69,11 +69,11 @@ func (db *Database) HandleQuery(ctx context.Context, queryStr string) string {
 		return db.handleSet(ctx, query)
 	case compute.DelCommandID:
 		return db.handleDel(ctx, query)
+	default:
+		db.logger.Debug("can't handle query", zap.String("tx", tx), zap.String("query", queryStr))
+
+		return "ERROR: can't handle query (unknown command)"
 	}
-
-	db.logger.Debug("can't handle query", zap.String("tx", tx), zap.String("query", queryStr))
-
-	return "error: can't handle query"
 }
 
 func (db *Database) handleGet(ctx context.Context, query compute.Query) string {
