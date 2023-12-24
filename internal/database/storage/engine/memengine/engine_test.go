@@ -8,6 +8,8 @@ import (
 )
 
 func TestGet(t *testing.T) {
+	t.Parallel()
+
 	engine := NewEngine()
 
 	key := "key"
@@ -21,6 +23,8 @@ func TestGet(t *testing.T) {
 }
 
 func TestDel(t *testing.T) {
+	t.Parallel()
+
 	engine := NewEngine()
 
 	key := "key"

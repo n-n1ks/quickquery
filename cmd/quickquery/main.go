@@ -55,17 +55,3 @@ func main() {
 		fmt.Printf("-> %s\n", result)
 	}
 }
-
-func MustEnv(key string) string {
-	if os.Getenv(key) == "" {
-		log.Panicf("unknown %s param in ENV", key)
-	}
-	return os.Getenv(key)
-}
-
-func Env(key, defaultValue string) string {
-	if os.Getenv(key) == "" {
-		return defaultValue
-	}
-	return os.Getenv(key)
-}

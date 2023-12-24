@@ -36,8 +36,7 @@ func (a *Analyzer) AnalyzeQuery(tokens []string) (Query, error) {
 
 	query := NewQuery(commandID, tokens[1:])
 	handler := a.handlers[commandID]
-	err = handler(query)
-	if err != nil {
+	if err := handler(query); err != nil {
 		return Query{}, err
 	}
 

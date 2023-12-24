@@ -13,6 +13,7 @@ var (
 	errInvalidCommandArguments = errors.New("invalid command arguments")
 	errInvalidParser           = errors.New("query parser is invalid")
 	errInvalidAnalyzer         = errors.New("query analyzer is invalid")
+	errInvalidLogger           = errors.New("logger is invalid")
 )
 
 type parser interface {
@@ -33,9 +34,11 @@ func NewCompute(parser parser, analyzer analyzer, logger *zap.Logger) (*Compute,
 	if parser == nil {
 		return nil, errInvalidParser
 	}
-
 	if analyzer == nil {
 		return nil, errInvalidAnalyzer
+	}
+	if logger == nil {
+		return nil, errInvalidLogger
 	}
 
 	return &Compute{

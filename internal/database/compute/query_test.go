@@ -7,6 +7,8 @@ import (
 )
 
 func TestQuery(t *testing.T) {
+	t.Parallel()
+
 	query := NewQuery(GetCommandID, []string{"key", "value"})
 	assert.Equal(t, GetCommandID, query.CommandID())
 	assert.Equal(t, []string{"key", "value"}, query.Arguments())

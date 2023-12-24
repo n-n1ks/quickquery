@@ -1,7 +1,6 @@
 package compute
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -9,12 +8,16 @@ import (
 )
 
 func TestAnalyzeQuery(t *testing.T) {
+	t.Parallel()
+
 	testTable := []struct {
+		name   string
 		tokens []string
 		query  Query
 		err    error
 	}{
 		{
+			name:   "when command is GET with a key",
 			tokens: []string{"GET", "key"},
 			query: Query{
 				commandID: GetCommandID,
@@ -23,6 +26,7 @@ func TestAnalyzeQuery(t *testing.T) {
 			err: nil,
 		},
 		{
+			name:   "when command is SET with a key and value",
 			tokens: []string{"SET", "key", "value"},
 			query: Query{
 				commandID: SetCommandID,
@@ -31,6 +35,7 @@ func TestAnalyzeQuery(t *testing.T) {
 			err: nil,
 		},
 		{
+			name:   "when command is DEL with a key",
 			tokens: []string{"DEL", "key"},
 			query: Query{
 				commandID: DelCommandID,
@@ -39,29 +44,36 @@ func TestAnalyzeQuery(t *testing.T) {
 			err: nil,
 		},
 		{
+			name:   "when command is GET without a key",
 			tokens: []string{"GET"},
 			query:  Query{},
 			err:    errInvalidCommandArguments,
 		},
 		{
+			name:   "when command is SET with a key but without value",
 			tokens: []string{"SET", "foo"},
 			query:  Query{},
 			err:    errInvalidCommandArguments,
 		},
 		{
+			name:   "when command is DEL without a key",
 			tokens: []string{"DEL"},
 			query:  Query{},
 			err:    errInvalidCommandArguments,
 		},
 	}
 
-	analyzer := NewAnalyzer()
 	for _, tt := range testTable {
-		t.Run(fmt.Sprintf("tokens: %v", tt.tokens), func(t *testing.T) {
-			query, err := analyzer.AnalyzeQuery(tt.tokens)
+		test := tt
+		testAnalyzer := NewAnalyzer()
 
-			assert.Equal(t, tt.query, query)
-			require.ErrorIs(t, tt.err, err)
+		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
+
+			query, err := testAnalyzer.AnalyzeQuery(test.tokens)
+
+			assert.Equal(t, test.query, query)
+			require.ErrorIs(t, test.err, err)
 		})
 	}
 }

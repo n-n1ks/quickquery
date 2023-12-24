@@ -14,37 +14,40 @@ import (
 var (
 	errInvalidComputeLayer = fmt.Errorf("invalid compute layer")
 	errInvalidStorageLayer = fmt.Errorf("invalid storage layer")
+	errInvalidLogger       = fmt.Errorf("invalid logger")
 )
 
-type computeLayer interface {
+type ComputerLayer interface {
 	HandleQuery(ctx context.Context, queryStr string) (query compute.Query, err error)
 }
 
-type storageLayer interface {
+type StorageLayer interface {
 	Set(ctx context.Context, key, value string) error
 	Get(ctx context.Context, key string) (string, error)
 	Del(ctx context.Context, key string) error
 }
 
 type Database struct {
-	computeLayer computeLayer
-	storageLayer storageLayer
-	logger       *zap.Logger
+	computer ComputerLayer
+	storage  StorageLayer
+	logger   *zap.Logger
 }
 
-func NewDatabase(compute computeLayer, storage storageLayer, logger *zap.Logger) (*Database, error) {
-	if compute == nil {
+func NewDatabase(computer ComputerLayer, storage StorageLayer, logger *zap.Logger) (*Database, error) {
+	if computer == nil {
 		return nil, errInvalidComputeLayer
 	}
-
 	if storage == nil {
 		return nil, errInvalidStorageLayer
 	}
+	if logger == nil {
+		return nil, errInvalidLogger
+	}
 
 	return &Database{
-		computeLayer: compute,
-		storageLayer: storage,
-		logger:       logger,
+		computer: computer,
+		storage:  storage,
+		logger:   logger,
 	}, nil
 }
 
@@ -54,7 +57,7 @@ func (db *Database) HandleQuery(ctx context.Context, queryStr string) string {
 
 	db.logger.Debug("handling query", zap.String("tx", tx), zap.String("query", queryStr))
 
-	query, err := db.computeLayer.HandleQuery(ctx, queryStr)
+	query, err := db.computer.HandleQuery(ctx, queryStr)
 	if err != nil {
 		return fmt.Sprintf("ERROR: %s", err.Error())
 	}
@@ -74,7 +77,7 @@ func (db *Database) HandleQuery(ctx context.Context, queryStr string) string {
 }
 
 func (db *Database) handleGet(ctx context.Context, query compute.Query) string {
-	value, err := db.storageLayer.Get(ctx, query.Arguments()[0])
+	value, err := db.storage.Get(ctx, query.Arguments()[0])
 	if err != nil {
 		return fmt.Sprintf("ERROR: %s", err.Error())
 	}
@@ -83,8 +86,7 @@ func (db *Database) handleGet(ctx context.Context, query compute.Query) string {
 }
 
 func (db *Database) handleSet(ctx context.Context, query compute.Query) string {
-	err := db.storageLayer.Set(ctx, query.Arguments()[0], query.Arguments()[1])
-	if err != nil {
+	if err := db.storage.Set(ctx, query.Arguments()[0], query.Arguments()[1]); err != nil {
 		return fmt.Sprintf("ERROR: %s", err.Error())
 	}
 
@@ -92,8 +94,7 @@ func (db *Database) handleSet(ctx context.Context, query compute.Query) string {
 }
 
 func (db *Database) handleDel(ctx context.Context, query compute.Query) string {
-	err := db.storageLayer.Del(ctx, query.Arguments()[0])
-	if err != nil {
+	if err := db.storage.Del(ctx, query.Arguments()[0]); err != nil {
 		return fmt.Sprintf("ERROR: %s", err.Error())
 	}
 

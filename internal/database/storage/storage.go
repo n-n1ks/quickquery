@@ -13,6 +13,7 @@ import (
 var (
 	errInvalidEngine = errors.New("invalid engine")
 	errKeyNotFound   = errors.New("key not found")
+	errInvalidLogger = errors.New("invalid logger")
 )
 
 type Storage struct {
@@ -23,6 +24,9 @@ type Storage struct {
 func NewStorage(engine engine.Engine, logger *zap.Logger) (*Storage, error) {
 	if engine == nil {
 		return nil, errInvalidEngine
+	}
+	if logger == nil {
+		return nil, errInvalidLogger
 	}
 
 	return &Storage{

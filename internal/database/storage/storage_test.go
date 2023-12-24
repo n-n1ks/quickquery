@@ -14,20 +14,35 @@ import (
 )
 
 func TestNewStorage(t *testing.T) {
+	t.Parallel()
+
 	logger := initialization.NewLogger("fatal")
 
 	t.Run("when engine is incorrect", func(t *testing.T) {
+		t.Parallel()
+
 		_, err := NewStorage(nil, logger)
-		assert.Equal(t, errInvalidEngine, err)
+		require.ErrorIs(t, errInvalidEngine, err)
+	})
+
+	t.Run("when logger is incorrect", func(t *testing.T) {
+		t.Parallel()
+
+		_, err := NewStorage(memengine.NewEngine(), nil)
+		require.ErrorIs(t, errInvalidLogger, err)
 	})
 
 	t.Run("when engine is correct", func(t *testing.T) {
+		t.Parallel()
+
 		_, err := NewStorage(memengine.NewEngine(), logger)
 		require.NoError(t, err)
 	})
 }
 
 func TestGet(t *testing.T) {
+	t.Parallel()
+
 	ctrl := gomock.NewController(t)
 	engine := mock_engine.NewMockEngine(ctrl)
 	storage := &Storage{
@@ -35,6 +50,8 @@ func TestGet(t *testing.T) {
 	}
 
 	t.Run("when key is not found", func(t *testing.T) {
+		t.Parallel()
+
 		key := "key"
 		engine.EXPECT().Get(gomock.Any(), key).Return("", false)
 
@@ -43,6 +60,8 @@ func TestGet(t *testing.T) {
 	})
 
 	t.Run("when key is found", func(t *testing.T) {
+		t.Parallel()
+
 		key := "key"
 		value := "value"
 		engine.EXPECT().Get(gomock.Any(), key).Return(value, true)
@@ -54,6 +73,8 @@ func TestGet(t *testing.T) {
 }
 
 func TestDel(t *testing.T) {
+	t.Parallel()
+
 	ctrl := gomock.NewController(t)
 	engine := mock_engine.NewMockEngine(ctrl)
 	storage := &Storage{

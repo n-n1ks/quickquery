@@ -39,13 +39,13 @@ func loggerLvl(level string) zap.AtomicLevel {
 	switch level {
 	case "debug":
 		return zap.NewAtomicLevelAt(zap.DebugLevel)
-	case "info":
-		return zap.NewAtomicLevelAt(zap.InfoLevel)
 	case "warn":
 		return zap.NewAtomicLevelAt(zap.WarnLevel)
 	case "panic":
 		return zap.NewAtomicLevelAt(zap.FatalLevel)
-	default:
+	case "fatal":
 		return zap.NewAtomicLevelAt(zap.FatalLevel)
+	default:
+		return zap.NewAtomicLevelAt(zap.InfoLevel)
 	}
 }
